@@ -5,21 +5,22 @@ import (
 	"time"
 )
 
+// process consumes the channel and processes the tasks
 func process(bestChannelInTheWorld chan string) {
 	for task := range bestChannelInTheWorld {
 		time.Sleep(10 * time.Second)
-		fmt.Printf("Processed task: %s\n", task)
+		fmt.Printf("Processed: %s\n", task)
 	}
 }
 
-func generate(bestChannelInTheWorld chan string, name string) {
+// generate produces a timestamp every millisecond
+func generate(bestChannelInTheWorld chan string) {
 	for {
 		microTimestamp := time.Now().Format("2006-01-02 15:04:05.000000")
-		taskName := fmt.Sprintf("%s --> %s", name, microTimestamp)
 		select {
-		case bestChannelInTheWorld <- taskName:
+		case bestChannelInTheWorld <- microTimestamp:
 		default:
-			time.Sleep(1 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
@@ -29,9 +30,7 @@ func main() {
 
 	go process(bestChannelInTheWorld)
 
-	go generate(bestChannelInTheWorld, "first")
-
-	go generate(bestChannelInTheWorld, "second")
+	go generate(bestChannelInTheWorld)
 
 	select {}
 }
